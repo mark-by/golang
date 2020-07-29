@@ -29,7 +29,10 @@ func Unpack(str string) string {
 		}
 
 		if currChar == '\\' || atoiErr == nil {
-			prevChar, _, _ = reader.ReadRune()
+			prevChar, _, readErr = reader.ReadRune()
+			if readErr != nil {
+				break
+			}
 		} else {
 			prevChar = currChar
 		}
