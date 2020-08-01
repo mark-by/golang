@@ -1,8 +1,6 @@
-package dublist
+package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type Item struct {
 	Value interface{}
@@ -21,6 +19,14 @@ type DubList struct {
 	back *Item
 }
 
+func NewDubList(any ...interface{}) *DubList {
+	var list = new(DubList)
+	for _, item := range any {
+		list.PushBack(item)
+	}
+	return list
+}
+
 func (list DubList) First() *Item {
 	return list.front
 }
@@ -29,13 +35,17 @@ func (list DubList) Last() *Item {
 	return list.back
 }
 
-func (list DubList) Print() {
+func (list DubList) ForEach(clb func(*Item)) {
 	curr := list.front
-	if curr == nil {
-		fmt.Println("")
-	}
 	for ;curr != nil; curr = curr.Next {
-		fmt.Println(curr.Value)
+		clb(curr)
+	}
+}
+
+func (list DubList) ForEachReverse(clb func(*Item)) {
+	curr := list.back
+	for ;curr != nil; curr = curr.Prev {
+		clb(curr)
 	}
 }
 
@@ -90,4 +100,11 @@ func (list *DubList) insertBefore(item *Item, newItem *Item) {
 		item.Prev.Next = newItem
 	}
 	item.Prev = newItem
+}
+
+func main() {
+	list := NewDubList(1, 2, 4, "hello", 10, "mix")
+	list.ForEach(func(item *Item) {
+		fmt.Println(item.Value)
+	})
 }
