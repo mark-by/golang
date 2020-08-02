@@ -11,18 +11,20 @@ func GoRun(tasks []func() error, maxGoroutines int, maxErrors int) {
 	var start = make(chan int)
 	var chError = make(chan error, len(tasks))
 	lastCounterValue := 0
+	maxGoroutinesReached := false
 	for i := 0; i < len(tasks); i++ {
-		if i < maxGoroutines {
+		if i <= maxGoroutines {
 			go func(i int) {
 				<- start
 				chError <- tasks[i]()
 			}(i)
 		} else {
 			lastCounterValue = i
+			maxGoroutinesReached = true
 			break
 		}
 	}
-	if lastCounterValue < len(tasks) {
+	if maxGoroutinesReached && lastCounterValue < len(tasks) {
 		go func() {
 			<- start
 			for i := lastCounterValue; i < len(tasks); i++ {
@@ -37,7 +39,7 @@ func GoRun(tasks []func() error, maxGoroutines int, maxErrors int) {
 		err, _ := <- chError
 		taskCounter++
 		if err != nil {
-			fmt.Errorf("ERROR: %v", err)
+			fmt.Printf("ERROR: %v\n", err)
 			errorCounter++
 			if errorCounter > maxErrors {
 				println("Много задач провалилось")
@@ -84,5 +86,5 @@ func main() {
 			return errors.New("f fail")
 		},
 	}
-	GoRun(functions, 4, 3)
+	GoRun(functions, 6, 3)
 }
