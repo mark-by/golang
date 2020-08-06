@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"flag"
 	"fmt"
@@ -68,24 +67,30 @@ func processOffsetFlag(inFile *os.File, closeFunc func()) {
 }
 
 func copyStream(in io.Reader, out io.Writer, limit int64) error {
-	bufIn := bufio.NewReader(in)
-	bufOut := bufio.NewWriter(out)
+	buffLen := 1024 * 1024
+	buffer := make([]byte, buffLen)
 	var readLen int64
-	var tempSymbol byte
-	var err error
 	for readLen < limit {
-		tempSymbol, err = bufIn.ReadByte()
-		readLen++
-		if err != nil {
-			return err
+		read, err := in.Read(buffer)
+		readLen += int64(read)
+		var writeErr error
+		if readLen > limit {
+			_, writeErr = out.Write(buffer[:(int64(read) - readLen % limit)])
+		} else {
+			_, writeErr = out.Write(buffer)
 		}
-		err = bufOut.WriteByte(tempSymbol)
-		if err != nil {
-			return err
+
+		if writeErr != nil {
+			return writeErr
 		}
+
+		if err == io.EOF {
+			break
+		}
+
 		fmt.Printf("Progress: %.2f%%\r", (float32(readLen) / float32(limit)) * 100)
 	}
-	return bufOut.Flush()
+	return nil
 }
 
 func main() {
