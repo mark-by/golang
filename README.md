@@ -49,4 +49,9 @@ Prev() *Item - предыдущий
 Все необходимые для тестов файлы должны создаваться в самом тесте  
 Код должен проходить проверки go vet и golint  
 У преподавателя должна быть возможность скачать, проверить и установить пакет с помощью go get / go test / go install  
-
+### try_graphql (GraphQL - gqlgen)
+Тестовый сервер с GraphQL по статье https://m.habr.com/ru/company/ruvds/blog/444346/ с модулями  
+Можно скачать с помощью `go get github.com/mark-by/golang/try_graphql`  
+1. Создать postgresql БД с данными, в graph/api/db/db.go (можно с помощью скрипта https://github.com/mark-by/utils/blob/master/create_db.sh c флагами `--db graph_test_db --user test --new 123`)  
+2. `exec $GOPATH/bin/try_graphql` (флаг `-newdb t` инициализирует бд)  
+3. http://localhost:8080/  
